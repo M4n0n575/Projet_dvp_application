@@ -1,131 +1,100 @@
 import pygame
 from Personnage import Personnage
 
-# --- 1. CONFIGURATION ---
-TAILLE_CASE = 60
-GRILLE_TAILLE = 10
-LARGEUR, HAUTEUR = GRILLE_TAILLE * TAILLE_CASE, GRILLE_TAILLE * TAILLE_CASE
-
-COULEURS = {
-    0: (255, 255, 255), # Sol
-    1: (40, 44, 52),    # Mur
-    2: (46, 204, 113),  # Départ
-    3: (231, 76, 60),   # Arrivée
-}
-
-# --- 2. LES NIVEAUX ---
-map1 = [
-    [2, 0, 1, 0, 0, 0, 1, 0, 0, 0], [0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-    [0, 1, 1, 0, 1, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 1, 1, 0, 1, 0],
-    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
-    [1, 1, 1, 0, 1, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 3]
-]
-
-map2 = [
-    [2, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 1, 1, 1, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0, 0, 0, 0, 1, 0], [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1, 3, 1]
-]
-
-tous_les_niveaux = [map1, map2]
-indice_niveau = 0
-
-# --- 3. INITIALISATION ---
-pygame.init()
-screen = pygame.display.set_mode((LARGEUR, HAUTEUR))
-pygame.display.set_caption("Labyrinthe - Atteignez l'arrivée !")
-
-def trouver_depart(matrice):
-    for l in range(GRILLE_TAILLE):
-        for c in range(GRILLE_TAILLE):
-            if matrice[l][c] == 2: return c, l
-    return 0, 0
-
-# Création du joueur au départ du niveau 1
-x_d, y_d = trouver_depart(tous_les_niveaux[indice_niveau])
-joueur = Personnage(100, 100, 1, x_d, y_d)
-
-fin_affichage_map = pygame.time.get_ticks() + 5000
-fin_ecran_rouge = 0
-en_pause = False
-
-def dessiner_interface():
-    # Barre de vie
-    pygame.draw.rect(screen, (50, 50, 50), (10, 10, 200, 20))
-    largeur_vie = max(0, (joueur.vie / joueur.vie_max) * 200)
-    pygame.draw.rect(screen, (46, 204, 113), (10, 10, largeur_vie, 20))
-
-def dessiner_tout(matrice):
-    for l in range(GRILLE_TAILLE):
-        for c in range(GRILLE_TAILLE):
-            val = matrice[l][c]
-            pygame.draw.rect(screen, COULEURS.get(val, (255,255,255)), (c*60, l*60, 60, 60))
-    # Personnage
-    pygame.draw.circle(screen, (52, 152, 219), (joueur.x*60+30, joueur.y*60+30), 20)
-
-# --- 4. BOUCLE PRINCIPALE ---
-continuer = True
-while continuer:
-    temps_actuel = pygame.time.get_ticks()
-    matrice_actuelle = tous_les_niveaux[indice_niveau]
-    map_visible = temps_actuel < fin_affichage_map
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: continuer = False
+class Jeu:
+    def __init__(self, screen, difficulte):
+        self.screen = screen
+        self.difficulte = difficulte # On pourra ajuster selon la difficulté plus tard
+        self.TAILLE_CASE = 60
+        self.GRILLE_TAILLE = 10
+        self.LARGEUR = self.GRILLE_TAILLE * self.TAILLE_CASE
+        self.HAUTEUR = self.GRILLE_TAILLE * self.TAILLE_CASE
         
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_p: en_pause = not en_pause
-            
-            # On ne bouge que si la map est cachée et qu'on n'est pas en pause
-            if not map_visible and not en_pause:
-                vie_avant = joueur.vie
-                if event.key == pygame.K_z: joueur.deplacement(0, -1, matrice_actuelle)
-                if event.key == pygame.K_s: joueur.deplacement(0, 1, matrice_actuelle)
-                if event.key == pygame.K_q: joueur.deplacement(-1, 0, matrice_actuelle)
-                if event.key == pygame.K_d: joueur.deplacement(1, 0, matrice_actuelle)
-                
-                # Effet flash rouge si on a touché un mur (vie a baissé)
-                if joueur.vie < vie_avant:
-                    fin_ecran_rouge = temps_actuel + 200
-                
-                # VÉRIFICATION ARRIVÉE (Case 3)
-                if matrice_actuelle[joueur.y][joueur.x] == 3:
-                    # 1. On passe au niveau suivant (boucle si fini)
-                    indice_niveau = (indice_niveau + 1) % len(tous_les_niveaux)
-                    # 2. On repositionne le joueur au nouveau départ
-                    nx, ny = trouver_depart(tous_les_niveaux[indice_niveau])
-                    joueur.x, joueur.y = nx, ny
-                    # 3. On réaffiche la carte pour 5 secondes
-                    fin_affichage_map = pygame.time.get_ticks() + 5000
+        self.COULEURS = {
+            0: (255, 255, 255), 1: (40, 44, 52), 2: (46, 204, 113),
+            3: (231, 76, 60), 4: (155, 89, 182), 5: (241, 196, 15),
+        }
 
-    joueur.update_ko()
-    screen.fill((0, 0, 0))
-    
-    if not en_pause:
-        dessiner_tout(matrice_actuelle)
+        self.map1 = [
+            [2, 0, 1, 0, 5, 0, 1, 0, 0, 0], [0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+            [0, 1, 1, 0, 1, 4, 0, 5, 1, 0], [0, 0, 5, 0, 1, 1, 1, 1, 1, 0],
+            [1, 1, 1, 0, 0, 0, 0, 0, 1, 0], [0, 5, 0, 0, 1, 1, 1, 0, 1, 0],
+            [0, 1, 1, 1, 1, 0, 5, 0, 0, 0], [0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+            [1, 1, 1, 0, 1, 0, 1, 4, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 3]
+        ]
         
-        # Si la map doit être cachée, on dessine le cercle de lumière
-        if not map_visible:
-            obs = pygame.Surface((LARGEUR, HAUTEUR))
-            obs.fill((10,10,10))
-            pygame.draw.circle(obs, (255,255,255), (joueur.x*60+30, joueur.y*60+30), 40)
-            obs.set_colorkey((255,255,255))
-            screen.blit(obs, (0,0))
-        else:
-            # Message d'attente
-            font = pygame.font.SysFont("Arial", 30, bold=True)
-            txt = font.render("MÉMORISEZ !", True, (0, 0, 0))
-            screen.blit(txt, (LARGEUR//2 - 80, 20))
+        x_d, y_d = self.trouver_depart(self.map1)
+        self.joueur = Personnage(100, 100, 1, x_d, y_d)
+        
+        self.en_pause = False
+        self.fin_affichage_map = pygame.time.get_ticks() + 5000
+        self.fin_ecran_rouge = 0
+        self.running = True
 
-        if temps_actuel < fin_ecran_rouge:
-            s = pygame.Surface((LARGEUR, HAUTEUR))
-            s.fill((255,0,0)); s.set_alpha(100); screen.blit(s, (0,0))
+    def trouver_depart(self, matrice):
+        for l in range(self.GRILLE_TAILLE):
+            for c in range(self.GRILLE_TAILLE):
+                if matrice[l][c] == 2: return c, l
+        return 0, 0
+
+    def dessiner_interface(self):
+        pygame.draw.rect(self.screen, (50, 50, 50), (10, 10, 200, 20))
+        largeur_vie = (self.joueur.vie / self.joueur.vie_max) * 200
+        couleur = (46, 204, 113) if self.joueur.vie > 50 else (231, 76, 60)
+        pygame.draw.rect(self.screen, couleur, (10, 10, largeur_vie, 20))
+        pygame.draw.rect(self.screen, (255, 255, 255), (10, 10, 200, 20), 2)
+
+    def dessiner_lumiere(self, x, y):
+        obscurite = pygame.Surface((self.LARGEUR, self.HAUTEUR))
+        obscurite.fill((10, 10, 10))
+        cx, cy = x * self.TAILLE_CASE + 30, y * self.TAILLE_CASE + 30
+        pygame.draw.circle(obscurite, (255, 255, 255), (cx, cy), 40)
+        obscurite.set_colorkey((255, 255, 255))
+        self.screen.blit(obscurite, (0, 0))
+
+    def dessiner_tout(self, matrice):
+        for l in range(self.GRILLE_TAILLE):
+            for c in range(self.GRILLE_TAILLE):
+                val = matrice[l][c]
+                rect = (c * self.TAILLE_CASE, l * self.TAILLE_CASE, self.TAILLE_CASE, self.TAILLE_CASE)
+                pygame.draw.rect(self.screen, self.COULEURS[val] if val <= 3 else self.COULEURS[0], rect)
+        pygame.draw.circle(self.screen, (52, 152, 219), (self.joueur.x*60+30, self.joueur.y*60+30), 20)
+
+    def update(self):
+        temps_actuel = pygame.time.get_ticks()
+        map_visible = temps_actuel < self.fin_affichage_map
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "QUITTER"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE: return "MENU"
+                if event.key == pygame.K_p: self.en_pause = not self.en_pause
+                
+                if not self.en_pause and not map_visible:
+                    collision = False
+                    if event.key == pygame.K_z: collision = self.joueur.deplacement(0, -1, self.map1)
+                    if event.key == pygame.K_s: collision = self.joueur.deplacement(0, 1, self.map1)
+                    if event.key == pygame.K_q: collision = self.joueur.deplacement(-1, 0, self.map1)
+                    if event.key == pygame.K_d: collision = self.joueur.deplacement(1, 0, self.map1)
+                    
+                    if collision:
+                        self.fin_ecran_rouge = temps_actuel + 200
+
+        self.joueur.update_ko()
+        self.screen.fill((0, 0, 0))
+        
+        if not self.en_pause:
+            self.dessiner_tout(self.map1)
+            if not map_visible:
+                self.dessiner_lumiere(self.joueur.x, self.joueur.y)
             
-        dessiner_interface()
-    
-    pygame.display.flip()
-
-pygame.quit()
+            if temps_actuel < self.fin_ecran_rouge:
+                flash = pygame.Surface((self.LARGEUR, self.HAUTEUR))
+                flash.fill((255, 0, 0))
+                flash.set_alpha(120)
+                self.screen.blit(flash, (0,0))
+                
+            self.dessiner_interface()
+        
+        return "JEU"
