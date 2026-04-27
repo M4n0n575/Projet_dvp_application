@@ -24,7 +24,7 @@ class Personnage:
                 self.x = nouveau_x
                 self.y = nouveau_y
                 return False
-            else:
+            
                 self.vie -= 20
                 if self.vie <= 0:
                     self.ko = True
