@@ -72,7 +72,7 @@ class Menu:
         self.screen.fill(self.bg_color)
         
         # 1. Titre en ROUGE
-        title_surf = self.font_title.render("BLIND PATH", True, self.btn_hover)
+        title_surf = self.font_title.render("BLIND MAZE", True, self.btn_hover)
         self.screen.blit(title_surf, (self.screen.get_width()//2 - title_surf.get_width()//2, 80))
         
         # 2. Bouton JOUER
