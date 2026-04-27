@@ -5,6 +5,7 @@ import sys
 class Menu:
     def __init__(self, screen):
         self.screen = screen
+        self.w, self.h = screen.get_size()
         # --- POLICES ---
         self.font_title = pygame.font.SysFont("Arial", 70, bold=True)
         self.font_btn = pygame.font.SysFont("Arial", 30, bold=True)
