@@ -34,7 +34,7 @@ class Jeu:
             self.son_victoire = pygame.mixer.Sound("Win.mp3")
             self.son_degats = pygame.mixer.Sound("Degats.mp3")
             self.son_deplacements = pygame.mixer.Sound("Déplacements.mp3")
-            self.son_lose = pygame.mixer.Sound("lose.mp3")
+            self.son_lose = pygame.mixer.Sound("Lose.mp3")
             self.son_joue = False 
         except:
             self.son_victoire = None
@@ -128,6 +128,9 @@ class Jeu:
             font_v = pygame.font.SysFont("Arial", 60, bold=True)
             txt_v = font_v.render("VICTOIRE !", True, (46, 204, 113))
             self.screen.blit(txt_v, txt_v.get_rect(center=(LARGEUR // 2, HAUTEUR // 2 - 30)))
+            font_r = pygame.font.SysFont("Arial", 30, bold=True)
+            txt_r = font_r.render("Appuie sur espace pour retourner au menu", True, (128, 128, 128))
+            self.screen.blit(txt_r, txt_r.get_rect(center=(LARGEUR // 2, HAUTEUR // 2 + 20)))
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: return "QUITTER"
@@ -142,9 +145,12 @@ class Jeu:
             
             overlay = pygame.Surface((LARGEUR, HAUTEUR)); overlay.set_alpha(200); overlay.fill((0, 0, 0))
             self.screen.blit(overlay, (0, 0))
-            font_v = pygame.font.SysFont("Arial", 60, bold=True)
-            txt_v = font_v.render("PERDU !", True, (255, 0, 0))
-            self.screen.blit(txt_v, txt_v.get_rect(center=(LARGEUR // 2, HAUTEUR // 2 - 30)))
+            font_p = pygame.font.SysFont("Arial", 60, bold=True)
+            txt_p = font_p.render("PERDU !", True, (255, 0, 0))
+            self.screen.blit(txt_p, txt_p.get_rect(center=(LARGEUR // 2, HAUTEUR // 2 - 30)))
+            font_r = pygame.font.SysFont("Arial", 30, bold=True)
+            txt_r = font_r.render("Appuie sur espace pour retourner au menu", True, (128, 128, 128))
+            self.screen.blit(txt_r, txt_r.get_rect(center=(LARGEUR // 2, HAUTEUR // 2 + 20)))
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: return "QUITTER"
