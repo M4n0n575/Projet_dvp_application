@@ -43,7 +43,7 @@ class Jeu:
             
 
         # --- GESTION DU CHRONO ---
-        temps_secondes = 60 if difficulte == "FACILE" else 45 if difficulte == "MOYEN" else 30
+        temps_secondes = 100 if difficulte == "FACILE" else 75 if difficulte == "MOYEN" else 50
         self.temps_limite = temps_secondes * 1000 
         self.debut_jeu = pygame.time.get_ticks()
         
