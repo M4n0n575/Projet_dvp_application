@@ -6,18 +6,25 @@ class Menu:
     def __init__(self, screen):
         self.screen = screen
         self.w, self.h = screen.get_size()
+        # --- CHARGEMENT DU FOND ---
+        try:
+            self.bg_image = pygame.image.load("logo.png").convert()
+            self.bg_image = pygame.transform.scale(self.bg_image, (self.w, self.h))
+        except:
+            print("Erreur : Image de fond introuvable. Utilisation de la couleur unie.")
+            self.bg_image = None
         # --- POLICES ---
         self.font_title = pygame.font.SysFont("Arial", 70, bold=True)
         self.font_btn = pygame.font.SysFont("Arial", 30, bold=True)
         self.font_small = pygame.font.SysFont("Arial", 22)
         
-        # --- COULEURS DEMANDÉES ---
+        # --- COULEURS ---
         self.bg_color = (48, 48, 48)       # Fond Gris
         self.btn_normal = (0, 0, 0)         # Bouton Noir
         self.btn_hover = (198, 8, 0)        # Rouge (Titre, Niveau, Survol)
         self.text_white = (255, 255, 255)   # Texte boutons
         
-        # --- CONFIGURATION DES BOUTONS ---
+        # ---BOUTONS ---
         # Bouton JOUER
         self.play_rect = pygame.Rect(0, 0, 300, 70)
         self.play_rect.center = (screen.get_width() // 2, 250)
@@ -26,7 +33,7 @@ class Menu:
         self.quit_rect = pygame.Rect(0, 0, 300, 70)
         self.quit_rect.center = (screen.get_width() // 2, 340)
         
-        # Zone de sélection de NIVEAU
+        # Sélection de niveau
         self.levels = ["FACILE", "MOYEN", "DIFFICILE"]
         self.level_idx = 0
         self.level_rect = pygame.Rect(0, 0, 220, 50)
@@ -69,23 +76,23 @@ class Menu:
 
     def draw(self):
         """Affiche les éléments"""
-        self.screen.fill(self.bg_color)
+        if self.bg_image:
+            self.screen.blit(self.bg_image, (0, 0))
+        else:
+            self.screen.fill(self.bg_color)
         
-        # 1. Titre en ROUGE
-        title_surf = self.font_title.render("BLIND MAZE", True, self.btn_hover)
-        self.screen.blit(title_surf, (self.screen.get_width()//2 - title_surf.get_width()//2, 80))
         
-        # 2. Bouton JOUER
+        # 1. Bouton JOUER
         pygame.draw.rect(self.screen, self.current_play_col, self.play_rect, border_radius=10)
         txt_play = self.font_btn.render("JOUER", True, self.text_white)
         self.screen.blit(txt_play, txt_play.get_rect(center=self.play_rect.center))
         
-        # 3. Bouton QUITTER
+        # 2. Bouton QUITTER
         pygame.draw.rect(self.screen, self.current_quit_col, self.quit_rect, border_radius=10)
         txt_quit = self.font_btn.render("QUITTER", True, self.text_white)
         self.screen.blit(txt_quit, txt_quit.get_rect(center=self.quit_rect.center))
         
-        # 4. Sélecteur de NIVEAU
+        # 3. Sélecteur de NIVEAU
         lbl_lv = self.font_small.render("Difficulté (cliquez pour changer) :", True, (180, 180, 180))
         self.screen.blit(lbl_lv, (self.level_rect.centerx - lbl_lv.get_width()//2, 425))
         
