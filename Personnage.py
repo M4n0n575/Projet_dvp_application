@@ -9,6 +9,13 @@ class Personnage:
         self.y = y_depart
         self.ko = False
         self.temps_ko = 0
+        
+        #INITIALISATION AUDIO
+        pygame.mixer.init()
+        try:
+            self.son_ko = pygame.mixer.Sound("KO.mp3")
+        except:
+            self.son_ko = None
 
     def deplacement(self, dx, dy, labyrinthe):
         if self.ko:
@@ -26,6 +33,7 @@ class Personnage:
                 self.vie -= 45
                 if self.vie <= 0:
                     self.ko = True
+                    self.son_ko.play()
                     self.temps_ko = pygame.time.get_ticks()
                 return True # Signal de collision pour l'effet rouge
         return False
