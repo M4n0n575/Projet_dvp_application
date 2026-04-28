@@ -21,10 +21,10 @@ class Jeu:
         # --- CHARGEMENT DU SPRITE ---
         try:
             # On charge l'image et on la redimensionne à la taille d'une case (60x60)
-            self.sprite_joueur = pygame.image.load("Minotaure-1.png.png").convert_alpha()
+            self.sprite_joueur = pygame.image.load("Minotaure.png").convert_alpha()
             self.sprite_joueur = pygame.transform.scale(self.sprite_joueur, (TAILLE_CASE, TAILLE_CASE))
         except:
-            print("Erreur : Impossible de charger le fichier Minotaure-1.png.png")
+            print("Erreur : Impossible de charger le fichier Minotaure.png")
             self.sprite_joueur = None
 
         # --- INITIALISATION AUDIO ---
