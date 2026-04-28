@@ -10,7 +10,7 @@ def main():
     
     # Configuration de la fenêtre (600x600 pour une grille 10x10 de cases de 60px)
     screen = pygame.display.set_mode((600, 600))
-    pygame.display.set_caption("Blind Path - Le Labyrinthe")
+    pygame.display.set_caption("Blind Maze - Le Labyrinthe")
     clock = pygame.time.Clock()
     
     menu = Menu(screen)
